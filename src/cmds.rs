@@ -1,6 +1,6 @@
-use crate::utils::{write_transaction, 
+use crate::utils::{write_transaction, write_transactions,
                    get_transactions};
-use crate::args::TransInfo;
+use crate::args::{TransInfo, ExportArgs};
 
 
 pub fn add_trans(cmd: TransInfo) {
@@ -8,14 +8,20 @@ pub fn add_trans(cmd: TransInfo) {
   write_transaction(&cmd, "./data/tmp.toml");
 }
 
+pub fn export_file(cmd: ExportArgs) {
+  let db = get_transactions("./data/tmp.toml");
+
+  write_transactions(&db, &cmd.filename);
+}
+
 pub fn balance() {
-  let trans = get_transactions("./data/tmp.toml");
+  let db = get_transactions("./data/tmp.toml");
 
   let mut u_tot: f64 = 0.0;
   let mut c_tot: f64 = 0.0;
   let mut total: f64 = 0.0;
 
-  for i in trans.trans {
+  for i in db.trans {
 
     if i.amount < 0.0 {
       u_tot += -i.amount;
@@ -26,19 +32,30 @@ pub fn balance() {
     total += i.amount;
   };
 
-  println!("USD   spent : {:.2} USD", &u_tot);
-  println!("Crpto spent : {:.2} USD", &c_tot);
-  println!("-------------------------------");
-  println!("Net   spent : {:.2} USD", &total);
+  println!("{: <12}: {:0>8.2} USD", "USD Spent", &u_tot);
+  
+  println!("{: <12}: {:0>8.2} USD", "Crypto Spent", &c_tot);
+
+  println!("{:-<25}", "");
+
+  println!("{: <12}: {:0>8.2} USD", "Net Spent", &total);
 }
 
 pub fn show() {
-  let trans = get_transactions("./data/tmp.toml");
+  let db = get_transactions("./data/tmp.toml");
 
-  println!("Type    Where    Coin    Amount");
+  println!(
+    "{: <15} {: <15} {: <10} {}",
+    "Type", "Where", "Coin", "Amount"
+  );
 
-  for i in trans.trans {
-    println!("{}    {}    {}    {}", &i.t, &i.w, &i.coin, &i.amount);
+  println!("{:-<55}", "");
+
+  for i in db.trans {
+    println!(
+      "{: <15} {: <15} {: <10} {}", 
+      &i.t, &i.w, &i.coin, &i.amount
+    );
   };
 
 }
