@@ -13,15 +13,14 @@ pub fn create_new_db() {
   db.execute(
     "CREATE TABLE transactions (
         id      INTEGER PRIMARY KEY,
-        type    TEXT,
-        where   TEXT,
+        vendor  TEXT,
         message TEXT,
         coin    TEXT,
-        netwrok TEXT,
+        network TEXT,
         amount  REAL,
         date    TEXT
     )", ()
-  ); 
+  ).expect("Failed to make table"); 
 }
 
 pub fn load_db() -> Connection {

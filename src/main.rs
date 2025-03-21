@@ -5,7 +5,7 @@ mod utils;
 
 use utils::init_local;
 use args::{RbalArgs, RbalSubcommands};
-use cmds::{add_trans, export_file, balance, show};
+use cmds::{add_trans, export_file, import_file, balance, show};
 
 use clap::Parser;
 
@@ -16,8 +16,9 @@ fn main() {
     let args = RbalArgs::parse();
 
     match args.command {
-        RbalSubcommands::Add(tran) => add_trans(tran),
-        RbalSubcommands::Export(file) => export_file(file),
+        RbalSubcommands::Add(cmds) => add_trans(cmds),
+        RbalSubcommands::Export(cmds) => export_file(cmds),
+        RbalSubcommands::Import(cmds) => import_file(cmds),
         RbalSubcommands::Balance => balance(),
         RbalSubcommands::Show => show(),
     };

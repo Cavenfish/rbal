@@ -1,37 +1,37 @@
 use crate::db::load_db;
-use crate::args::{TransInfo, ExportArgs};
-use crate::utils::get_transactions;
-
-use std::env;
-use dotenv::dotenv;
+use crate::args::{TransInfo, ExportArgs, ImportArgs};
+use crate::utils::{TransVec, get_transactions};
 
 use rusqlite::Connection;
 
-pub fn add_trans(cmd: TransInfo) {
-  dotenv().ok();
 
-  let db = Connection::open(
-    env::var("DB_FILE").expect("DB_FILE must be set")
-  ).unwrap();
-  
-  db.execute(
-    "INSERT INTO transactions (type, 
-    where, message, coin, network, amount, date)
-    values ()", 
-    (&cmd.t, &cmd.w, &cmd.f, &cmd.coin,
-     &cmd.network, &cmd.amount, &cmd.date)
-  );
+pub fn export_file(cmd: ExportArgs) {
+  let db: Connection = load_db();
+
+  // write_transactions(&db, &cmd.filename);
+}
+
+pub fn import_file(cmd: ImportArgs) {
+  let db: Connection = load_db();
+  let tr: TransVec   = get_transactions(&cmd.filename);
+
+  for i in tr.trans {
+    add_trans(i);
+  };
 
 }
 
-pub fn export_file(cmd: ExportArgs) {
-  dotenv().ok();
+pub fn add_trans(cmd: TransInfo) {
+  let db: Connection = load_db();
+  
+  db.execute(
+    "INSERT INTO transactions (
+    vendor, message, coin, network, amount, date)
+    values (?1, ?2, ?3, ?4, ?5, ?6)", 
+    (&cmd.vendor, &cmd.message, &cmd.coin,
+     &cmd.network, &cmd.amount, &cmd.date)
+  ).expect("Failed to add transaction");
 
-  let db = Connection::open(
-    env::var("DB_FILE").expect("DB_FILE must be set")
-  );
-
-  // write_transactions(&db, &cmd.filename);
 }
 
 pub fn balance() {
@@ -62,7 +62,7 @@ pub fn balance() {
 }
 
 pub fn show() {
-  let db = get_transactions("./data/tmp.toml");
+  let db: Connection = load_db();
 
   println!(
     "{: <15} {: <15} {: <10} {}",
@@ -71,11 +71,34 @@ pub fn show() {
 
   println!("{:-<55}", "");
 
-  for i in db.trans {
-    println!(
-      "{: <15} {: <15} {: <10} {}", 
-      &i.t, &i.w, &i.coin, &i.amount
-    );
+  let mut stmt = db.prepare(
+    "SELECT * FROM transactions"
+  ).unwrap();
+
+  let trans = stmt.query_map([], |row| {
+    Ok(TransInfo {
+
+      vendor: row.get(1)?,
+
+      message: row.get(2)?,
+
+      coin: row.get(3)?,
+
+      network: row.get(4)?,
+
+      amount: row.get(5)?,
+
+      date: row.get(6)?,
+    })
+  }).unwrap();
+
+  for i in trans {
+
+    println!("{:?}", i);
+    // println!(
+    //   "{: <15} {: <15} {: <10} {}", 
+    //   &i.t, &i.w, &i.coin, &i.amount
+    // );
   };
 
 }

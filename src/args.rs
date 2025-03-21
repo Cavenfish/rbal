@@ -16,6 +16,9 @@ pub enum RbalSubcommands {
   /// Add transaction
   Add(TransInfo),
 
+  /// Import transactions list
+  Import(ImportArgs),
+
   /// Export transactions list
   Export(ExportArgs),
 
@@ -27,23 +30,36 @@ pub enum RbalSubcommands {
 
 }
 
+#[derive(Debug, Args)]
+pub struct ExportArgs {
+
+  /// Filename 
+  #[arg(short)]
+  pub filename: String,
+   
+}
+
+#[derive(Debug, Args)]
+pub struct ImportArgs {
+
+  /// Filename 
+  #[arg(short)]
+  pub filename: String,
+   
+}
+
 #[derive(Debug, Serialize, Deserialize, Args)]
 pub struct TransInfo {
 
-  /// Type of transaction
-  #[arg(short)]
-  #[serde(rename = "type")]
-  pub t: String,
-
-  /// Where
+  /// Vendor
   #[arg(short)]
   #[serde(rename = "where")]
-  pub w: String,
+  pub vendor: String,
 
-  /// For
+  /// Give a description
   #[arg(short)]
   #[serde(rename = "for")]
-  pub f: String,
+  pub message: String,
 
   /// Coin used
   #[arg(short, long)]
@@ -60,13 +76,4 @@ pub struct TransInfo {
   /// Date of transaction
   #[arg(short, long)]
   pub date: String,
-}
-
-#[derive(Debug, Args)]
-pub struct ExportArgs {
-
-  /// Filename 
-  #[arg(short)]
-  pub filename: String,
-   
 }
