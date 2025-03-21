@@ -1,17 +1,37 @@
-use crate::utils::{write_transaction, write_transactions,
-                   get_transactions};
+use crate::db::load_db;
 use crate::args::{TransInfo, ExportArgs};
+use crate::utils::get_transactions;
 
+use std::env;
+use dotenv::dotenv;
+
+use rusqlite::Connection;
 
 pub fn add_trans(cmd: TransInfo) {
+  dotenv().ok();
 
-  write_transaction(&cmd, "./data/tmp.toml");
+  let db = Connection::open(
+    env::var("DB_FILE").expect("DB_FILE must be set")
+  ).unwrap();
+  
+  db.execute(
+    "INSERT INTO transactions (type, 
+    where, message, coin, network, amount, date)
+    values ()", 
+    (&cmd.t, &cmd.w, &cmd.f, &cmd.coin,
+     &cmd.network, &cmd.amount, &cmd.date)
+  );
+
 }
 
 pub fn export_file(cmd: ExportArgs) {
-  let db = get_transactions("./data/tmp.toml");
+  dotenv().ok();
 
-  write_transactions(&db, &cmd.filename);
+  let db = Connection::open(
+    env::var("DB_FILE").expect("DB_FILE must be set")
+  );
+
+  // write_transactions(&db, &cmd.filename);
 }
 
 pub fn balance() {

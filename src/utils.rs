@@ -1,8 +1,13 @@
 use std::fs;
 use std::io::Write;
+use std::path::Path;
 use toml::{from_str, to_string};
 
+use std::env;
+use dotenv::dotenv;
+
 use crate::args::TransInfo;
+use crate::db::create_new_db;
 
 // External
 use serde::{Serialize, Deserialize};
@@ -23,24 +28,21 @@ pub fn get_transactions(file: &str) -> TransVec {
   trans
 }
 
-pub fn write_transaction(info: &TransInfo, file: &str) {
+pub fn init_local() {
+  dotenv().ok();
 
-  let mut f = fs::OpenOptions::new()
-      .append(true)
-      .create(true)
-      .open(file)
-      .unwrap();
-
-  let s: String = to_string(info).expect("fail");
+  let p: String = env::var("RBAL_DIR")
+    .expect("RBAL_DIR must be set");
   
-  writeln!(f, "[[trans]]").expect("fail");
-  writeln!(f, "{}", &s).expect("fail");
-}
+  if !Path::new(&p).exists()  {
+    fs::create_dir_all(&p).expect("fail");
+  }
 
-pub fn write_transactions(trans: &TransVec, file: &str) {
+  let f:String = env::var("DB_FILE")
+    .expect("DB_FILE must be set");
 
-  let s: String = to_string(trans).expect("fail");
-
-  fs::write(file, &s).expect("fail");
+  if !Path::new(&f).exists()  {
+      create_new_db();
+  }
 
 }

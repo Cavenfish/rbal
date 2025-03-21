@@ -1,13 +1,17 @@
+mod db;
 mod args;
 mod cmds;
 mod utils;
 
+use utils::init_local;
 use args::{RbalArgs, RbalSubcommands};
 use cmds::{add_trans, export_file, balance, show};
 
 use clap::Parser;
 
 fn main() {
+
+    init_local();
 
     let args = RbalArgs::parse();
 
