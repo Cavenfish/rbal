@@ -12,7 +12,6 @@ pub fn export_file(cmd: ExportArgs) {
 }
 
 pub fn import_file(cmd: ImportArgs) {
-  let db: Connection = load_db();
   let tr: TransVec   = get_transactions(&cmd.filename);
 
   for i in tr.trans {
@@ -35,22 +34,27 @@ pub fn add_trans(cmd: TransInfo) {
 }
 
 pub fn balance() {
-  let db = get_transactions("./data/tmp.toml");
+  let db: Connection = load_db();
 
   let mut u_tot: f64 = 0.0;
   let mut c_tot: f64 = 0.0;
   let mut total: f64 = 0.0;
 
-  for i in db.trans {
+  let mut stmt = db.prepare("SELECT amount FROM transactions").unwrap();
+  let mut rows = stmt.query([]).unwrap();
 
-    if i.amount < 0.0 {
-      u_tot += -i.amount;
+  while let Some(row) = rows.next().unwrap() {
+    let a: f64 = row.get(0).unwrap();
+
+    if a < 0.0 {
+      u_tot += -a;
     } else {
-      c_tot += i.amount;
+      c_tot += a;
     }
+    
+    total += a;
 
-    total += i.amount;
-  };
+  }
 
   println!("{: <12}: {:0>8.2} USD", "USD Spent", &u_tot);
   
@@ -66,7 +70,7 @@ pub fn show() {
 
   println!(
     "{: <15} {: <15} {: <10} {}",
-    "Type", "Where", "Coin", "Amount"
+    "Vendor", "Date", "Coin", "Amount"
   );
 
   println!("{:-<55}", "");
@@ -94,11 +98,12 @@ pub fn show() {
 
   for i in trans {
 
-    println!("{:?}", i);
-    // println!(
-    //   "{: <15} {: <15} {: <10} {}", 
-    //   &i.t, &i.w, &i.coin, &i.amount
-    // );
+    let info = i.unwrap();
+
+    println!(
+      "{: <15} {: <15} {: <10} {}", 
+      &info.vendor, &info.date, &info.coin, &info.amount
+    );
   };
 
 }
