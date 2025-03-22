@@ -1,7 +1,7 @@
 use std::env;
 use dotenv::dotenv;
 
-use rusqlite::{params, Connection, Result};
+use rusqlite::Connection;
 
 pub fn create_new_db() {
   dotenv().ok();
