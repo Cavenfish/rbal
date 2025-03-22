@@ -20,6 +20,6 @@ fn main() {
         RbalSubcommands::Export(cmds) => export_file(cmds),
         RbalSubcommands::Import(cmds) => import_file(cmds),
         RbalSubcommands::Balance => balance(),
-        RbalSubcommands::Show => show(),
+        RbalSubcommands::Show(cmds) => show(cmds),
     };
 }

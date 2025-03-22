@@ -8,10 +8,10 @@ pub fn create_new_db() {
 
   let db = Connection::open(
     env::var("DB_FILE").expect("DB_FILE must be set")
-  ).unwrap();
+  ).expect("Failed to open database");
 
   db.execute(
-    "CREATE TABLE transactions (
+    "CREATE TABLE rbal (
         id      INTEGER PRIMARY KEY,
         vendor  TEXT,
         message TEXT,
@@ -28,7 +28,7 @@ pub fn load_db() -> Connection {
 
   let db = Connection::open(
     env::var("DB_FILE").expect("DB_FILE must be set")
-  ).unwrap();
+  ).expect("Failed to open database");
 
   db
 }

@@ -26,7 +26,7 @@ pub enum RbalSubcommands {
   Balance,
 
   /// Show all transactions
-  Show,
+  Show(ShowArgs),
 
 }
 
@@ -46,6 +46,15 @@ pub struct ImportArgs {
   #[arg(short)]
   pub filename: String,
    
+}
+
+#[derive(Debug, Args)]
+pub struct ShowArgs {
+
+  /// SQLite query
+  #[arg(long, default_value="*")]
+  pub query: String,
+
 }
 
 #[derive(Debug, Serialize, Deserialize, Args)]

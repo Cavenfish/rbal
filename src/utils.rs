@@ -5,6 +5,7 @@ use toml::{from_str};
 
 use std::env;
 use dotenv::dotenv;
+use rusqlite::{Connection, Statement};
 
 use crate::args::TransInfo;
 use crate::db::create_new_db;
@@ -18,6 +19,36 @@ pub struct TransVec {
 
   pub trans: Vec<TransInfo>,
 
+}
+
+pub fn get_rows(db: &Connection, query: &str) -> Vec<TransInfo> {
+
+  let mut stmt = db.prepare(query).unwrap();
+
+  let tmp = stmt.query_map([], |row| {
+    Ok(TransInfo {
+
+      vendor: row.get(1)?,
+
+      message: row.get(2)?,
+
+      coin: row.get(3)?,
+
+      network: row.get(4)?,
+
+      amount: row.get(5)?,
+
+      date: row.get(6)?,
+    })
+  }).unwrap();
+
+  let mut rows = Vec::new();
+
+  for i in tmp {
+    rows.push(i.unwrap())
+  };
+
+  rows
 }
 
 pub fn get_transactions(file: &str) -> TransVec {

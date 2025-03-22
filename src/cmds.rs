@@ -1,6 +1,6 @@
 use crate::db::load_db;
-use crate::args::{TransInfo, ExportArgs, ImportArgs};
-use crate::utils::{TransVec, get_transactions};
+use crate::args::{TransInfo, ExportArgs, ImportArgs, ShowArgs};
+use crate::utils::{TransVec, get_transactions, get_rows};
 
 use rusqlite::Connection;
 
@@ -8,7 +8,10 @@ use rusqlite::Connection;
 pub fn export_file(cmd: ExportArgs) {
   let db: Connection = load_db();
 
-  // write_transactions(&db, &cmd.filename);
+  // db.execute(
+  //   ".mode csv;
+  //   "
+  // )
 }
 
 pub fn import_file(cmd: ImportArgs) {
@@ -24,7 +27,7 @@ pub fn add_trans(cmd: TransInfo) {
   let db: Connection = load_db();
   
   db.execute(
-    "INSERT INTO transactions (
+    "INSERT INTO rbal (
     vendor, message, coin, network, amount, date)
     values (?1, ?2, ?3, ?4, ?5, ?6)", 
     (&cmd.vendor, &cmd.message, &cmd.coin,
@@ -40,7 +43,7 @@ pub fn balance() {
   let mut c_tot: f64 = 0.0;
   let mut total: f64 = 0.0;
 
-  let mut stmt = db.prepare("SELECT amount FROM transactions").unwrap();
+  let mut stmt = db.prepare("SELECT amount FROM rbal").unwrap();
   let mut rows = stmt.query([]).unwrap();
 
   while let Some(row) = rows.next().unwrap() {
@@ -65,7 +68,7 @@ pub fn balance() {
   println!("{: <12}: {:0>8.2} USD", "Net Spent", &total);
 }
 
-pub fn show() {
+pub fn show(cmd: ShowArgs) {
   let db: Connection = load_db();
 
   println!(
@@ -75,34 +78,16 @@ pub fn show() {
 
   println!("{:-<55}", "");
 
-  let mut stmt = db.prepare(
-    "SELECT * FROM transactions"
-  ).unwrap();
+  let query: String = format!(
+    "SELECT {} FROM rbal", &cmd.query
+  );
 
-  let trans = stmt.query_map([], |row| {
-    Ok(TransInfo {
+  let rows: Vec<TransInfo> = get_rows(&db, &query);
 
-      vendor: row.get(1)?,
-
-      message: row.get(2)?,
-
-      coin: row.get(3)?,
-
-      network: row.get(4)?,
-
-      amount: row.get(5)?,
-
-      date: row.get(6)?,
-    })
-  }).unwrap();
-
-  for i in trans {
-
-    let info = i.unwrap();
-
+  for row in rows {
     println!(
       "{: <15} {: <15} {: <10} {}", 
-      &info.vendor, &info.date, &info.coin, &info.amount
+      &row.vendor, &row.date, &row.coin, &row.amount
     );
   };
 
