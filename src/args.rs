@@ -36,6 +36,10 @@ pub struct ExportArgs {
   /// Filename 
   #[arg(short)]
   pub filename: String,
+
+  /// File format
+  #[arg(long, default_value="csv")]
+  pub format: String,
    
 }
 

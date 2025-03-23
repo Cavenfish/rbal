@@ -2,16 +2,32 @@ use crate::db::load_db;
 use crate::args::{TransInfo, ExportArgs, ImportArgs};
 use crate::utils::{TransVec, get_transactions, get_trans_vec};
 
+use std::fs::File;
+use std::io::Write;
+
 use rusqlite::Connection;
 
 
 pub fn export_file(cmd: ExportArgs) {
   let db: Connection = load_db();
 
-  // db.execute(
-  //   ".mode csv;
-  //   "
-  // )
+  let rows: Vec<TransInfo> = get_trans_vec(&db);
+
+  let mut file = File::create(&cmd.filename)
+    .expect("Unable to create file");
+
+  writeln!(file, 
+    "id,vendor,message,coin,network,amount,date"
+  ).expect("Fail to write");
+
+  for row in rows {
+    writeln!(file,
+      "{},{},{},{},{},{},{}",
+      &row.id, &row.vendor, &row.message, &row.coin,
+      &row.network, &row.amount, &row.date
+    ).expect("Fail to write");
+  };
+
 }
 
 pub fn import_file(cmd: ImportArgs) {
