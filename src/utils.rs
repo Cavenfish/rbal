@@ -4,23 +4,23 @@ use toml::{from_str};
 
 use std::env;
 use dotenv::dotenv;
-use rusqlite::{Connection, Statement};
+use rusqlite::{Connection};
 
 use crate::args::TransInfo;
 use crate::db::create_new_db;
 
-// External
-use serde::{Serialize, Deserialize};
+// // External
+// use serde::{Serialize, Deserialize};
 
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TransVec {
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct TransVec {
 
-  pub trans: Vec<TransInfo>,
+//   pub trans: Vec<TransInfo>,
 
-}
+// }
 
-pub fn get_trans_vec(db: &Connection) -> Vec<TransInfo> {
+pub fn get_rows(db: &Connection) -> Vec<TransInfo> {
 
   let mut stmt = db.prepare("SELECT * FROM rbal").unwrap();
 
@@ -49,13 +49,13 @@ pub fn get_trans_vec(db: &Connection) -> Vec<TransInfo> {
   trans.expect("fail")
 }
 
-pub fn get_transactions(file: &str) -> TransVec {
-  let f = fs::read_to_string(file).expect("Failed");
+// pub fn read_file(file: &str) -> TransVec {
+//   let f = fs::read_to_string(file).expect("Failed");
 
-  let trans: TransVec = from_str(&f).unwrap();
+//   let trans: TransVec = from_str(&f).unwrap();
 
-  trans
-}
+//   trans
+// }
 
 pub fn init_local() {
   dotenv().ok();

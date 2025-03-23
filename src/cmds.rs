@@ -1,17 +1,18 @@
 use crate::db::load_db;
 use crate::args::{TransInfo, ExportArgs, ImportArgs};
-use crate::utils::{TransVec, get_transactions, get_trans_vec};
+use crate::utils::{get_rows};
 
 use std::fs::File;
 use std::io::Write;
 
 use rusqlite::Connection;
+use rusqlite::vtab::csvtab::load_module;
 
 
 pub fn export_file(cmd: ExportArgs) {
   let db: Connection = load_db();
 
-  let rows: Vec<TransInfo> = get_trans_vec(&db);
+  let rows: Vec<TransInfo> = get_rows(&db);
 
   let mut file = File::create(&cmd.filename)
     .expect("Unable to create file");
@@ -31,11 +32,25 @@ pub fn export_file(cmd: ExportArgs) {
 }
 
 pub fn import_file(cmd: ImportArgs) {
-  let tr: TransVec   = get_transactions(&cmd.filename);
 
-  for i in tr.trans {
-    add_trans(i);
-  };
+  let db: Connection = load_db();
+
+  load_module(&db).expect("unable to load");
+  
+  let schema = format!("
+    CREATE VIRTUAL TABLE csv_data
+    USING csv(filename = '{}')", &cmd.filename
+  );
+
+  db.execute_batch(&schema).expect("fail");
+    
+  // db.execute(
+  //   ".import ?1 csv_data --csv", (&cmd.filename,)
+  // ).expect("fail");
+
+  db.execute(
+    "INSERT INTO rbal SELECT * FROM csv_data", ()
+  ).expect("fail");
 
 }
 
@@ -94,7 +109,7 @@ pub fn show() {
 
   println!("{:-<55}", "");
 
-  let rows: Vec<TransInfo> = get_trans_vec(&db);
+  let rows: Vec<TransInfo> = get_rows(&db);
 
   for row in rows {
     println!(
