@@ -1,6 +1,6 @@
 use crate::db::load_db;
-use crate::args::{TransInfo, ExportArgs, ImportArgs, ShowArgs};
-use crate::utils::{TransVec, get_transactions, get_rows};
+use crate::args::{TransInfo, ExportArgs, ImportArgs};
+use crate::utils::{TransVec, get_transactions, get_trans_vec};
 
 use rusqlite::Connection;
 
@@ -68,25 +68,21 @@ pub fn balance() {
   println!("{: <12}: {:0>8.2} USD", "Net Spent", &total);
 }
 
-pub fn show(cmd: ShowArgs) {
+pub fn show() {
   let db: Connection = load_db();
 
   println!(
-    "{: <15} {: <15} {: <10} {}",
-    "Vendor", "Date", "Coin", "Amount"
+    "{: <5} {: <15} {: <15} {: <10} {}",
+    "ID", "Vendor", "Date", "Coin", "Amount"
   );
 
   println!("{:-<55}", "");
 
-  let query: String = format!(
-    "SELECT {} FROM rbal", &cmd.query
-  );
-
-  let rows: Vec<TransInfo> = get_rows(&db, &query);
+  let rows: Vec<TransInfo> = get_trans_vec(&db);
 
   for row in rows {
     println!(
-      "{: <15} {: <15} {: <10} {}", 
+      "{: <5} {: <15} {: <15} {: <10} {}", &row.id,
       &row.vendor, &row.date, &row.coin, &row.amount
     );
   };

@@ -21,12 +21,14 @@ pub struct TransVec {
 
 }
 
-pub fn get_rows(db: &Connection, query: &str) -> Vec<TransInfo> {
+pub fn get_trans_vec(db: &Connection) -> Vec<TransInfo> {
 
-  let mut stmt = db.prepare(query).unwrap();
+  let mut stmt = db.prepare("SELECT * FROM rbal").unwrap();
 
   let tmp = stmt.query_map([], |row| {
     Ok(TransInfo {
+
+      id: row.get(0)?,
 
       vendor: row.get(1)?,
 
@@ -42,13 +44,10 @@ pub fn get_rows(db: &Connection, query: &str) -> Vec<TransInfo> {
     })
   }).unwrap();
 
-  let mut rows = Vec::new();
 
-  for i in tmp {
-    rows.push(i.unwrap())
-  };
+  let trans = tmp.collect::<Result<Vec<TransInfo>, _>>();
 
-  rows
+  trans.expect("fail")
 }
 
 pub fn get_transactions(file: &str) -> TransVec {

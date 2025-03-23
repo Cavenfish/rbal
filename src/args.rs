@@ -26,7 +26,7 @@ pub enum RbalSubcommands {
   Balance,
 
   /// Show all transactions
-  Show(ShowArgs),
+  Show,
 
 }
 
@@ -48,17 +48,11 @@ pub struct ImportArgs {
    
 }
 
-#[derive(Debug, Args)]
-pub struct ShowArgs {
-
-  /// SQLite query
-  #[arg(long, default_value="*")]
-  pub query: String,
-
-}
-
 #[derive(Debug, Serialize, Deserialize, Args)]
 pub struct TransInfo {
+
+  #[clap(skip)]
+  pub id: u32,
 
   /// Vendor
   #[arg(short)]
