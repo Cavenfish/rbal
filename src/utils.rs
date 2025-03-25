@@ -8,17 +8,6 @@ use rusqlite::{Connection};
 use crate::args::TransInfo;
 use crate::db::create_new_db;
 
-// // External
-// use serde::{Serialize, Deserialize};
-
-
-// #[derive(Debug, Serialize, Deserialize)]
-// pub struct TransVec {
-
-//   pub trans: Vec<TransInfo>,
-
-// }
-
 pub fn get_rows(db: &Connection) -> Vec<TransInfo> {
 
   let mut stmt = db.prepare("SELECT * FROM rbal").unwrap();
@@ -47,14 +36,6 @@ pub fn get_rows(db: &Connection) -> Vec<TransInfo> {
 
   trans.expect("fail")
 }
-
-// pub fn read_file(file: &str) -> TransVec {
-//   let f = fs::read_to_string(file).expect("Failed");
-
-//   let trans: TransVec = from_str(&f).unwrap();
-
-//   trans
-// }
 
 pub fn init_local() {
   dotenv().ok();

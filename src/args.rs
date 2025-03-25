@@ -1,6 +1,5 @@
 // External
 use clap::{Args, Parser, Subcommand};
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Parser)]
 pub struct RbalArgs {
@@ -36,23 +35,19 @@ pub struct ExportArgs {
   /// Filename 
   #[arg(short)]
   pub filename: String,
-
-  /// File format
-  #[arg(long, default_value="csv")]
-  pub format: String,
    
 }
 
 #[derive(Debug, Args)]
 pub struct ImportArgs {
 
-  /// Filename 
+  /// Filename
   #[arg(short)]
   pub filename: String,
    
 }
 
-#[derive(Debug, Serialize, Deserialize, Args)]
+#[derive(Debug, Args)]
 pub struct TransInfo {
 
   #[clap(skip)]
@@ -60,12 +55,10 @@ pub struct TransInfo {
 
   /// Vendor
   #[arg(short)]
-  #[serde(rename = "where")]
   pub vendor: String,
 
   /// Give a description
   #[arg(short)]
-  #[serde(rename = "for")]
   pub message: String,
 
   /// Coin used
