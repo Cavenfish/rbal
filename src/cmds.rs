@@ -5,6 +5,7 @@ use crate::utils::{get_rows};
 use std::fs::File;
 use std::io::Write;
 
+use chrono::Local;
 use rusqlite::Connection;
 use rusqlite::vtab::csvtab::load_module;
 
@@ -70,13 +71,21 @@ pub fn import_file(cmd: ImportArgs) {
 
 pub fn add_trans(cmd: TransInfo) {
   let db: Connection = load_db();
+
+  let date = if cmd.date.eq("today") {
+    let tmp  = Local::now();
+
+    &tmp.format("%Y-%m-%d").to_string()
+  } else {
+    &cmd.date
+  };
   
   db.execute(
     "INSERT INTO rbal (
     vendor, message, coin, network, amount, date)
     values (?1, ?2, ?3, ?4, ?5, ?6)", 
     (&cmd.vendor, &cmd.message, &cmd.coin,
-     &cmd.network, &cmd.amount, &cmd.date)
+     &cmd.network, &cmd.amount, date)
   ).expect("Failed to add transaction");
 
 }

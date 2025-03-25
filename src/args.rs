@@ -74,6 +74,6 @@ pub struct TransInfo {
   pub amount: f64,
 
   /// Date of transaction
-  #[arg(short, long)]
+  #[arg(long, default_value="today")]
   pub date: String,
 }
