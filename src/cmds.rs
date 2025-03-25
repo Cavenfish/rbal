@@ -1,6 +1,6 @@
 use crate::db::load_db;
-use crate::args::{TransInfo, ExportArgs, ImportArgs};
-use crate::utils::{get_rows};
+use crate::utils::{show_all, show_id, get_rows};
+use crate::args::{TransInfo, ExportArgs, ImportArgs, ShowArgs};
 
 use std::fs::File;
 use std::io::Write;
@@ -11,9 +11,8 @@ use rusqlite::vtab::csvtab::load_module;
 
 
 pub fn export_file(cmd: ExportArgs) {
-  let db: Connection = load_db();
 
-  let rows: Vec<TransInfo> = get_rows(&db);
+  let rows: Vec<TransInfo> = get_rows();
 
   let mut file = File::create(&cmd.filename)
     .expect("Unable to create file");
@@ -72,12 +71,17 @@ pub fn import_file(cmd: ImportArgs) {
 pub fn add_trans(cmd: TransInfo) {
   let db: Connection = load_db();
 
-  let date = if cmd.date.eq("today") {
-    let tmp  = Local::now();
+  let date = match cmd.date.as_str() {
 
-    &tmp.format("%Y-%m-%d").to_string()
-  } else {
-    &cmd.date
+    // Handle default value
+    "today" => {
+      let tmp  = Local::now();
+
+      &tmp.format("%Y-%m-%d").to_string()
+    },
+  
+    // Handle user input
+    _ => &cmd.date,
   };
   
   db.execute(
@@ -122,23 +126,16 @@ pub fn balance() {
   println!("{: <12}: {:0>8.2} USD", "Net Spent", &total);
 }
 
-pub fn show() {
-  let db: Connection = load_db();
+pub fn show(cmd: ShowArgs) {
 
-  println!(
-    "{: <5} {: <15} {: <15} {: <10} {}",
-    "ID", "Vendor", "Date", "Coin", "Amount"
-  );
+  match cmd.id {
+    
+    // Handle default value
+    0 => show_all(),
 
-  println!("{:-<55}", "");
+    // Handle user input
+    _ => show_id(cmd.id),
 
-  let rows: Vec<TransInfo> = get_rows(&db);
-
-  for row in rows {
-    println!(
-      "{: <5} {: <15} {: <15} {: <10} {}", &row.id,
-      &row.vendor, &row.date, &row.coin, &row.amount
-    );
   };
 
 }

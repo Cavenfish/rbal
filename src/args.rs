@@ -31,7 +31,7 @@ pub enum RbalSubcommands {
   Balance,
 
   /// Show all transactions
-  Show,
+  Show(ShowArgs),
 
 }
 
@@ -51,6 +51,15 @@ pub struct ImportArgs {
   #[arg(short)]
   pub filename: String,
    
+}
+
+#[derive(Debug, Args)]
+pub struct ShowArgs {
+
+  /// Transaction ID (Defaults to show all)
+  #[arg(long, default_value_t=0)]
+  pub id: u32,
+
 }
 
 #[derive(Debug, Args)]
@@ -79,7 +88,7 @@ pub struct TransInfo {
   #[arg(short, long)]
   pub amount: f64,
 
-  /// Date of transaction
+  /// Date of transaction (Defaults to today)
   #[arg(long, default_value="today")]
   pub date: String,
 }
