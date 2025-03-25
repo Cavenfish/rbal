@@ -5,21 +5,21 @@ use clap::{Args, Parser, Subcommand};
 pub struct RbalArgs {
 
   #[clap(subcommand)]
-  pub command: RbalSubcommands,
+  pub command: Rbal,
 
 }
 
 #[derive(Debug, Subcommand)]
-pub enum RbalSubcommands {
+pub enum Rbal {
 
   /// Add transaction
   Add(TransInfo),
 
-  // Remove transaction
-  // TODO
+  /// Remove transaction
+  Remove(RemoveArgs),
 
   // Edit Transaction
-  // TODO
+  // Edit(EditArgs),
 
   /// Import transactions list
   Import(ImportArgs),
@@ -61,6 +61,20 @@ pub struct ShowArgs {
   pub id: u32,
 
 }
+
+#[derive(Debug, Args)]
+pub struct RemoveArgs {
+
+  /// Transaction ID
+  #[arg(short, long)]
+  pub id: u32,
+
+}
+
+// #[derive(Debug, Args)]
+// pub struct EditArgs {
+
+// }
 
 #[derive(Debug, Args)]
 pub struct TransInfo {

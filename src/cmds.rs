@@ -1,6 +1,9 @@
 use crate::db::load_db;
 use crate::utils::{show_all, show_id, get_rows};
-use crate::args::{TransInfo, ExportArgs, ImportArgs, ShowArgs};
+use crate::args::{
+  TransInfo, RemoveArgs, ExportArgs,
+  ImportArgs, ShowArgs
+};
 
 use std::fs::File;
 use std::io::Write;
@@ -91,6 +94,15 @@ pub fn add_trans(cmd: TransInfo) {
     (&cmd.vendor, &cmd.message, &cmd.coin,
      &cmd.network, &cmd.amount, date)
   ).expect("Failed to add transaction");
+
+}
+
+pub fn remove_trans(cmd: RemoveArgs) {
+  let db: Connection = load_db();
+
+  db.execute(
+    "DELETE FROM rbal WHERE id = ?1", (cmd.id,)
+  ).expect("Failed to remove transaction");
 
 }
 
