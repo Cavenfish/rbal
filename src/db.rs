@@ -1,13 +1,10 @@
 use std::fs;
-use std::path::Path;
-
 use std::env;
-use dotenv::dotenv;
+use std::path::Path;
 
 use rusqlite::Connection;
 
 pub fn create_new_db() {
-  dotenv().ok();
 
   let db = Connection::open(
     env::var("DB_FILE").expect("DB_FILE must be set")
@@ -27,7 +24,6 @@ pub fn create_new_db() {
 }
 
 pub fn load_db() -> Connection {
-  dotenv().ok();
 
   let db = Connection::open(
     env::var("DB_FILE").expect("DB_FILE must be set")
@@ -37,7 +33,6 @@ pub fn load_db() -> Connection {
 }
 
 pub fn init_local() {
-  dotenv().ok();
 
   let p: String = env::var("RBAL_DIR")
     .expect("RBAL_DIR must be set");

@@ -11,8 +11,10 @@ use cmds::{
 };
 
 use clap::Parser;
+use dotenv::dotenv;
 
 fn main() {
+    dotenv().ok();
 
     init_local();
 
