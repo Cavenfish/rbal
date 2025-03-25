@@ -15,6 +15,12 @@ pub enum RbalSubcommands {
   /// Add transaction
   Add(TransInfo),
 
+  // Remove transaction
+  // TODO
+
+  // Edit Transaction
+  // TODO
+
   /// Import transactions list
   Import(ImportArgs),
 

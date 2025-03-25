@@ -1,5 +1,3 @@
-use std::fs;
-use std::path::Path;
 
 use std::env;
 use dotenv::dotenv;
@@ -35,23 +33,4 @@ pub fn get_rows(db: &Connection) -> Vec<TransInfo> {
   let trans = tmp.collect::<Result<Vec<TransInfo>, _>>();
 
   trans.expect("fail")
-}
-
-pub fn init_local() {
-  dotenv().ok();
-
-  let p: String = env::var("RBAL_DIR")
-    .expect("RBAL_DIR must be set");
-  
-  if !Path::new(&p).exists()  {
-    fs::create_dir_all(&p).expect("fail");
-  }
-
-  let f:String = env::var("DB_FILE")
-    .expect("DB_FILE must be set");
-
-  if !Path::new(&f).exists()  {
-      create_new_db();
-  }
-
 }

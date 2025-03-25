@@ -3,7 +3,7 @@ mod args;
 mod cmds;
 mod utils;
 
-use utils::init_local;
+use db::init_local;
 use args::{RbalArgs, RbalSubcommands};
 use cmds::{add_trans, export_file, import_file, balance, show};
 
