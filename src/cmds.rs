@@ -36,21 +36,35 @@ pub fn import_file(cmd: ImportArgs) {
   let db: Connection = load_db();
 
   load_module(&db).expect("unable to load");
-  
-  let schema = format!("
+
+  let schema = "CREATE TABLE x (
+        id      INTEGER,
+        vendor  TEXT,
+        message TEXT,
+        coin    TEXT,
+        network TEXT,
+        amount  REAL,
+        date    TEXT
+    )";
+
+  let vtab = format!("
     CREATE VIRTUAL TABLE csv_data
-    USING csv(filename = '{}')", &cmd.filename
+    USING csv(filename = '{}', schema = '{}', header=YES)", 
+    &cmd.filename, &schema,
   );
 
-  db.execute_batch(&schema).expect("fail");
-    
-  // db.execute(
-  //   ".import ?1 csv_data --csv", (&cmd.filename,)
-  // ).expect("fail");
+  db.execute_batch(&vtab).expect("fail");
 
   db.execute(
-    "INSERT INTO rbal SELECT * FROM csv_data", ()
+    "INSERT INTO rbal SELECT 
+      CAST(id AS INTEGER), 
+      vendor, message, coin, network,
+      CAST(amount AS REAL),
+      date
+    FROM csv_data", ()
   ).expect("fail");
+
+  db.execute("DROP TABLE csv_data", ()).expect("fail");
 
 }
 

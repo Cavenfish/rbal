@@ -1,6 +1,5 @@
 use std::fs;
 use std::path::Path;
-use toml::{from_str};
 
 use std::env;
 use dotenv::dotenv;
