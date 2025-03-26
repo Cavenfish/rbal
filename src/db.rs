@@ -1,14 +1,15 @@
 use std::fs;
-use std::env;
 use std::path::Path;
 
+use dirs::data_dir;
 use rusqlite::Connection;
 
 pub fn create_new_db() {
+  let mut db_file = data_dir().unwrap();
+  db_file.set_file_name("rbal/main.db");
 
-  let db = Connection::open(
-    env::var("DB_FILE").expect("DB_FILE must be set")
-  ).expect("Failed to open database");
+  let db = Connection::open(db_file)
+    .expect("Failed to open database");
 
   db.execute(
     "CREATE TABLE rbal (
@@ -24,27 +25,26 @@ pub fn create_new_db() {
 }
 
 pub fn load_db() -> Connection {
+  let mut db_file = data_dir().unwrap();
+  db_file.set_file_name("rbal/main.db");
 
-  let db = Connection::open(
-    env::var("DB_FILE").expect("DB_FILE must be set")
-  ).expect("Failed to open database");
+  let db = Connection::open(db_file)
+    .expect("Failed to open database");
 
   db
 }
 
 pub fn init_local() {
-
-  let p: String = env::var("RBAL_DIR")
-    .expect("RBAL_DIR must be set");
+  let mut share = data_dir().unwrap();
+  share.set_file_name("rbal/");
   
-  if !Path::new(&p).exists()  {
-    fs::create_dir_all(&p).expect("fail");
+  if !Path::new(&share).exists()  {
+    fs::create_dir_all(&share).expect("fail");
   }
 
-  let f:String = env::var("DB_FILE")
-    .expect("DB_FILE must be set");
+  share.set_file_name("rbal/main.db");
 
-  if !Path::new(&f).exists()  {
+  if !Path::new(&share).exists()  {
       create_new_db();
   }
 
