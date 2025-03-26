@@ -5,8 +5,7 @@ use dirs::data_dir;
 use rusqlite::Connection;
 
 pub fn create_new_db() {
-  let mut db_file = data_dir().unwrap();
-  db_file.set_file_name("rbal/main.db");
+  let db_file = data_dir().unwrap().join("rbal/main.db");
 
   let db = Connection::open(db_file)
     .expect("Failed to open database");
@@ -25,8 +24,7 @@ pub fn create_new_db() {
 }
 
 pub fn load_db() -> Connection {
-  let mut db_file = data_dir().unwrap();
-  db_file.set_file_name("rbal/main.db");
+  let db_file = data_dir().unwrap().join("rbal/main.db");
 
   let db = Connection::open(db_file)
     .expect("Failed to open database");
@@ -35,16 +33,15 @@ pub fn load_db() -> Connection {
 }
 
 pub fn init_local() {
-  let mut share = data_dir().unwrap();
-  share.set_file_name("rbal/");
+  let rbal = data_dir().unwrap().join("rbal");
   
-  if !Path::new(&share).exists()  {
-    fs::create_dir_all(&share).expect("fail");
+  if !Path::new(&rbal).exists()  {
+    fs::create_dir_all(&rbal).expect("fail");
   }
 
-  share.set_file_name("rbal/main.db");
+  let db_file = rbal.join("main.db");
 
-  if !Path::new(&share).exists()  {
+  if !Path::new(&db_file).exists()  {
       create_new_db();
   }
 
