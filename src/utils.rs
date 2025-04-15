@@ -79,6 +79,6 @@ pub fn show_id(id: u32) {
     })
   }).unwrap();
 
-  println!("{:#?}", row);
+  println!("{}", row);
 
 }

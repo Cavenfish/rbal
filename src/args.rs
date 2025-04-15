@@ -1,3 +1,5 @@
+use std::fmt;
+
 // External
 use clap::{Args, Parser, Subcommand};
 
@@ -105,4 +107,27 @@ pub struct TransInfo {
   /// Date of transaction (Defaults to today)
   #[arg(long, default_value="today")]
   pub date: String,
+}
+
+impl fmt::Display for TransInfo {
+
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+
+    write!(
+      f, "
+      ID     : {}
+      Date   : {}
+      Vendor : {}
+      Amount : {}
+      Coin   : {}
+      Network: {}
+      Note   : {}
+      ",
+      self.id, &self.date, &self.vendor,
+      self.amount, &self.coin, &self.network,
+      self.message
+    )
+
+  }
+
 }
