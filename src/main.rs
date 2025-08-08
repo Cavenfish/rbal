@@ -1,19 +1,15 @@
-mod db;
 mod args;
 mod cmds;
+mod db;
 mod utils;
 
+use args::{Rbal, RbalArgs};
+use cmds::{add_trans, balance, export_file, import_file, remove_trans, show};
 use db::init_local;
-use args::{RbalArgs, Rbal};
-use cmds::{
-    add_trans, remove_trans, export_file, 
-    import_file, balance, show
-};
 
 use clap::Parser;
 
 fn main() {
-
     init_local();
 
     let args = RbalArgs::parse();
