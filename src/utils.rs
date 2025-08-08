@@ -1,3 +1,4 @@
+use colored::Colorize;
 use rusqlite::Connection;
 
 use crate::args::TransInfo;
@@ -44,9 +45,15 @@ pub fn show_all() {
     let rows: Vec<TransInfo> = get_rows();
 
     for row in rows {
+        let amt = if row.amount < 0.0 {
+            row.amount.to_string().red()
+        } else {
+            row.amount.to_string().green()
+        };
+
         println!(
             "{: <5} {: <15} {: <15} {: <10} {: <5}",
-            &row.id, &row.vendor, &row.date, &row.coin, &row.amount
+            &row.id, &row.vendor, &row.date, &row.coin, &amt
         );
     }
 }
