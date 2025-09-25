@@ -28,6 +28,9 @@ pub enum Rbal {
     /// Get net spent
     Balance,
 
+    /// Show summary of coins used
+    Coins,
+
     /// Show all transactions
     Show(ShowArgs),
 }

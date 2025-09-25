@@ -4,7 +4,7 @@ mod db;
 mod utils;
 
 use args::{Rbal, RbalArgs};
-use cmds::{add_trans, balance, export_file, import_file, remove_trans, show};
+use cmds::{add_trans, balance, coins, export_file, import_file, remove_trans, show};
 use db::init_local;
 
 use clap::Parser;
@@ -20,6 +20,7 @@ fn main() {
         Rbal::Export(cmds) => export_file(cmds),
         Rbal::Import(cmds) => import_file(cmds),
         Rbal::Balance => balance(),
+        Rbal::Coins => coins(),
         Rbal::Show(cmds) => show(cmds),
     };
 }
