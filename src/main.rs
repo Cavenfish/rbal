@@ -1,10 +1,11 @@
+mod app;
 mod args;
 mod cmds;
 mod db;
 mod utils;
 
 use args::{Rbal, RbalArgs};
-use cmds::{add_trans, balance, coins, export_file, import_file, remove_trans, show};
+use cmds::{add_trans, balance, coins, export_file, import_file, remove_trans, run_gui, show};
 use db::init_local;
 
 use clap::Parser;
@@ -22,5 +23,6 @@ fn main() {
         Rbal::Balance => balance(),
         Rbal::Coins => coins(),
         Rbal::Show(cmds) => show(cmds),
+        Rbal::Gui => run_gui(),
     };
 }

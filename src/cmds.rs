@@ -1,3 +1,4 @@
+use crate::app::MyApp;
 use crate::args::{ExportArgs, ImportArgs, RemoveArgs, ShowArgs, TransInfo};
 use crate::db::load_db;
 use crate::utils::{get_rows, show_all, show_id};
@@ -7,6 +8,7 @@ use std::fs::File;
 use std::io::Write;
 
 use chrono::Local;
+use eframe::egui;
 use rusqlite::Connection;
 use rusqlite::vtab::csvtab::load_module;
 
@@ -175,4 +177,17 @@ pub fn show(cmd: ShowArgs) {
         // Handle user input
         _ => show_id(cmd.id),
     };
+}
+
+pub fn run_gui() {
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
+        ..Default::default()
+    };
+
+    let _ = eframe::run_native(
+        "Rbal GUI",
+        options,
+        Box::new(|_| Ok(Box::<MyApp>::default())),
+    );
 }

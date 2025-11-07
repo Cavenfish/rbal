@@ -33,6 +33,9 @@ pub enum Rbal {
 
     /// Show all transactions
     Show(ShowArgs),
+
+    /// Open the GUI
+    Gui,
 }
 
 #[derive(Debug, Args)]
