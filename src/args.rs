@@ -33,6 +33,9 @@ pub enum Rbal {
 
     /// Show all transactions
     Show(ShowArgs),
+
+    /// Launch TUI
+    Tui,
 }
 
 #[derive(Debug, Args)]

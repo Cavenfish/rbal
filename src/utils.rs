@@ -1,3 +1,6 @@
+use std::collections::BTreeMap;
+
+use anyhow::Result;
 use colored::Colorize;
 use rusqlite::Connection;
 
@@ -84,4 +87,31 @@ pub fn show_id(id: u32) {
         .unwrap();
 
     println!("{}", row);
+}
+
+pub fn get_coins_data() -> Result<BTreeMap<String, (f64, i32)>> {
+    let db: Connection = load_db();
+
+    let mut coins_map = BTreeMap::new();
+
+    let mut stmt = db.prepare("SELECT coin, amount FROM rbal").unwrap();
+    let mut rows = stmt.query([]).unwrap();
+
+    while let Some(row) = rows.next().unwrap() {
+        let k: String = row.get(0).unwrap();
+        let v: f64 = row.get(1).unwrap();
+
+        if k == "N/A" {
+            continue;
+        }
+
+        if coins_map.contains_key(&k) {
+            let (v0, i0) = coins_map.get(&k).unwrap();
+            coins_map.insert(k, (v0 + v, i0 + 1));
+        } else {
+            coins_map.insert(k, (v, 1));
+        }
+    }
+
+    Ok(coins_map)
 }

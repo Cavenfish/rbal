@@ -1,6 +1,6 @@
 use crate::args::{ExportArgs, ImportArgs, RemoveArgs, ShowArgs, TransInfo};
 use crate::db::load_db;
-use crate::utils::{get_rows, show_all, show_id};
+use crate::utils::{get_coins_data, get_rows, show_all, show_id};
 
 use std::collections::BTreeMap;
 use std::fs::File;
@@ -135,28 +135,7 @@ pub fn balance() {
 }
 
 pub fn coins() {
-    let db: Connection = load_db();
-
-    let mut coins_map = BTreeMap::new();
-
-    let mut stmt = db.prepare("SELECT coin, amount FROM rbal").unwrap();
-    let mut rows = stmt.query([]).unwrap();
-
-    while let Some(row) = rows.next().unwrap() {
-        let k: String = row.get(0).unwrap();
-        let v: f64 = row.get(1).unwrap();
-
-        if k == "N/A" {
-            continue;
-        }
-
-        if coins_map.contains_key(&k) {
-            let (v0, i0) = coins_map.get(&k).unwrap();
-            coins_map.insert(k, (v0 + v, i0 + 1));
-        } else {
-            coins_map.insert(k, (v, 1));
-        }
-    }
+    let coins_map = get_coins_data().unwrap();
 
     println!("{: <8} {: <8} {: <5}", "Coin", "Total", "Tx Count");
 
