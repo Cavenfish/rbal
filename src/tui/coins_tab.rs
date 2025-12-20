@@ -27,7 +27,7 @@ impl CoinsTab {
         Self { data }
     }
 
-    pub fn barchart(&self) -> BarChart {
+    pub fn barchart(&self) -> BarChart<'_> {
         let bars: Vec<Bar> = self.data.iter().map(|(k, v)| bar(k, v.0)).collect();
         BarChart::default()
             .data(BarGroup::default().bars(&bars))
@@ -36,7 +36,7 @@ impl CoinsTab {
     }
 }
 
-fn bar(name: &str, value: f64) -> Bar {
+fn bar(name: &str, value: f64) -> Bar<'_> {
     Bar::default()
         .value(value as u64)
         .label(Line::from(name))

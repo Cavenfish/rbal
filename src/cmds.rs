@@ -2,7 +2,6 @@ use crate::args::{ExportArgs, ImportArgs, RemoveArgs, ShowArgs, TransInfo};
 use crate::db::load_db;
 use crate::utils::{get_coins_data, get_rows, show_all, show_id};
 
-use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 

@@ -1,19 +1,19 @@
 use ratatui::style::Color;
 
-#[derive(Debug)]
-pub struct RbalTheme {
-    pub foreground: Color,
-    pub background: Color,
-}
+// #[derive(Debug)]
+// pub struct RbalTheme {
+//     pub foreground: Color,
+//     pub background: Color,
+// }
 
-impl Default for RbalTheme {
-    fn default() -> Self {
-        Self {
-            foreground: Color::White,
-            background: Color::Black,
-        }
-    }
-}
+// impl Default for RbalTheme {
+//     fn default() -> Self {
+//         Self {
+//             foreground: Color::White,
+//             background: Color::Black,
+//         }
+//     }
+// }
 
 #[derive(Debug)]
 pub struct TableTheme {
