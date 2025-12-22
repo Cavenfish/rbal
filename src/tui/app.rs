@@ -5,28 +5,41 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
     text::Line,
-    widgets::{Tabs, Widget},
+    widgets::{StatefulWidget, TableState, Tabs, Widget},
 };
+use std::cell::RefCell;
+
+use crate::{args::TransInfo, utils::get_rows};
 
 use super::tabs::RbalTabs;
 
+fn render_footer(area: Rect, buf: &mut Buffer) {
+    Line::raw("◄ ► to change tab | Press q to quit")
+        .centered()
+        .render(area, buf);
+}
+
 #[derive(Debug, Default)]
 pub struct App {
-    running: bool,
+    pub state: AppState,
     selected_tab: RbalTabs,
     tab_index: u8,
 }
 
 impl App {
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        self.running = true;
-        while self.running {
-            terminal.draw(|frame| frame.render_widget(&self, frame.area()))?;
+        self.state.running = true;
+        while self.state.running {
+            terminal.draw(|frame| {
+                frame.render_widget(&self, frame.area());
+            })?;
             if let Some(key) = event::read()?.as_key_press_event() {
                 match key.code {
                     KeyCode::Char('d') | KeyCode::Right => self.next_tab(),
                     KeyCode::Char('a') | KeyCode::Left => self.previous_tab(),
                     KeyCode::Char('q') | KeyCode::Esc => self.quit(),
+                    KeyCode::Down => self.state.next_row(),
+                    KeyCode::Up => self.state.previous_row(),
                     _ => {}
                 }
             }
@@ -65,7 +78,7 @@ impl App {
     }
 
     fn quit(&mut self) {
-        self.running = false;
+        self.state.running = false;
     }
 }
 
@@ -78,14 +91,58 @@ impl Widget for &App {
         let horizontal = Layout::horizontal([Min(0)]);
         let [tabs_area] = horizontal.areas(header_area);
 
+        // let mut state = self.state.table_state.clone();
+
         self.render_tabs(tabs_area, buf);
-        self.selected_tab.render(inner_area, buf);
+        self.selected_tab
+            .render(inner_area, buf, &mut self.state.table_state.borrow_mut());
         render_footer(footer_area, buf);
     }
 }
 
-fn render_footer(area: Rect, buf: &mut Buffer) {
-    Line::raw("◄ ► to change tab | Press q to quit")
-        .centered()
-        .render(area, buf);
+#[derive(Debug)]
+pub struct AppState {
+    running: bool,
+    table_state: RefCell<TableState>,
+    table_items: Vec<TransInfo>,
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
+            running: true,
+            table_state: RefCell::new(TableState::default().with_selected(0)),
+            table_items: get_rows(),
+        }
+    }
+}
+
+impl AppState {
+    pub fn next_row(&mut self) {
+        let i = match self.table_state.borrow().selected() {
+            Some(i) => {
+                if i >= self.table_items.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.table_state.borrow_mut().select(Some(i));
+    }
+
+    pub fn previous_row(&mut self) {
+        let i = match self.table_state.borrow().selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.table_items.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.table_state.borrow_mut().select(Some(i));
+    }
 }

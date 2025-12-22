@@ -27,11 +27,11 @@ pub struct TableTheme {
 impl Default for TableTheme {
     fn default() -> Self {
         Self {
-            foreground: Color::Black,
-            background: Color::Gray,
-            alt_bg: Color::DarkGray,
-            header_fg: Color::Blue,
-            header_bg: Color::Black,
+            foreground: Color::White,
+            background: Color::Rgb(54, 38, 57),
+            alt_bg: Color::Rgb(48, 29, 52),
+            header_fg: Color::Rgb(57, 204, 241),
+            header_bg: Color::Rgb(21, 2, 33),
         }
     }
 }
