@@ -1,9 +1,9 @@
 use ratatui::{
     buffer::Buffer,
-    layout::{Constraint, Rect},
+    layout::{Constraint, Layout, Rect},
     style::{Modifier, Style, Stylize},
     text::Text,
-    widgets::{Cell, Row, StatefulWidget, Table, TableState},
+    widgets::{Cell, Paragraph, Row, StatefulWidget, Table, TableState, Widget, Wrap},
 };
 
 use super::theme::TableTheme;
@@ -29,6 +29,18 @@ impl StatefulWidget for TableTab {
     type State = TableState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        use Constraint::{Length, Min};
+        let horizontal = Layout::horizontal([Min(0), Length(25)]);
+        let [table_area, info_area] = horizontal.areas(area);
+
+        let i = state.selected().unwrap();
+        let info = self.items.get(i).unwrap();
+        let text = Text::raw(format!("Full Transaction Info\n{}", info));
+
+        Paragraph::new(text)
+            .wrap(Wrap { trim: true })
+            .render(info_area, buf);
+
         let header_style = Style::default()
             .fg(self.colors.header_fg)
             .bg(self.colors.header_bg);
@@ -55,18 +67,14 @@ impl StatefulWidget for TableTab {
         });
         let highlight_style = Style::default().add_modifier(Modifier::REVERSED);
 
-        Table::new(
-            rows,
-            [
-                Constraint::Length(16),
-                Constraint::Min(16),
-                Constraint::Min(11),
-                Constraint::Min(6),
-            ],
-        )
-        .header(header)
-        .row_highlight_style(highlight_style)
-        .bg(self.colors.background)
-        .render(area, buf, state);
+        StatefulWidget::render(
+            Table::new(rows, [Length(16), Min(16), Min(11), Min(6)])
+                .header(header)
+                .row_highlight_style(highlight_style)
+                .bg(self.colors.background),
+            table_area,
+            buf,
+            state,
+        );
     }
 }

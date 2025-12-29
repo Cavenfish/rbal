@@ -91,8 +91,6 @@ impl Widget for &App {
         let horizontal = Layout::horizontal([Min(0)]);
         let [tabs_area] = horizontal.areas(header_area);
 
-        // let mut state = self.state.table_state.clone();
-
         self.render_tabs(tabs_area, buf);
         self.selected_tab
             .render(inner_area, buf, &mut self.state.table_state.borrow_mut());
