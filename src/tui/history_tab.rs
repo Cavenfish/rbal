@@ -110,7 +110,7 @@ fn get_chart_data() -> Result<(f64, Vec<(f64, f64)>)> {
     let mut x: f64 = 0.0;
     let mut y: f64 = 0.0;
 
-    data.push((x.clone(), y.clone()));
+    data.push((x, y));
 
     while let Some(row) = rows.next()? {
         let amount: f64 = row.get(0)?;
@@ -119,7 +119,7 @@ fn get_chart_data() -> Result<(f64, Vec<(f64, f64)>)> {
             x += 1.0;
             y += amount;
 
-            data.push((x, y.clone()));
+            data.push((x, y));
         } else {
             usd += amount;
         }
