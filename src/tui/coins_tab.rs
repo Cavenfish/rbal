@@ -8,7 +8,7 @@ use ratatui::{
     widgets::{Bar, BarChart, BarGroup, Block, Widget},
 };
 
-use crate::utils::get_coins_data;
+use crate::{db::load_db, utils::get_coins_data};
 
 pub struct CoinsTab {
     data: BTreeMap<String, (f64, i32)>,
@@ -22,7 +22,8 @@ impl Widget for CoinsTab {
 
 impl CoinsTab {
     pub fn new() -> Self {
-        let data = get_coins_data().unwrap();
+        let db = load_db().unwrap();
+        let data = get_coins_data(db).unwrap();
 
         Self { data }
     }

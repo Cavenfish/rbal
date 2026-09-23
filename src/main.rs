@@ -4,30 +4,11 @@ mod db;
 mod tui;
 mod utils;
 
-use args::{Rbal, RbalArgs};
-use cmds::{add_trans, balance, coins, export_file, import_file, remove_trans, show};
+use args::RbalCli;
 use db::init_local;
-use tui::app::App;
-
-use clap::Parser;
 
 fn main() {
-    init_local();
+    init_local().unwrap();
 
-    let args = RbalArgs::parse();
-
-    match args.command {
-        Rbal::Add(cmds) => add_trans(cmds),
-        Rbal::Remove(cmds) => remove_trans(cmds),
-        Rbal::Export(cmds) => export_file(cmds),
-        Rbal::Import(cmds) => import_file(cmds),
-        Rbal::Balance => balance(),
-        Rbal::Coins => coins(),
-        Rbal::Show(cmds) => show(cmds),
-        Rbal::Tui => {
-            let terminal = ratatui::init();
-            let _ = App::default().run(terminal);
-            ratatui::restore();
-        }
-    };
+    RbalCli::run().unwrap();
 }

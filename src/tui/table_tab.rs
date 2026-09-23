@@ -7,7 +7,7 @@ use ratatui::{
 };
 
 use super::theme::TableTheme;
-use crate::{args::TransInfo, utils::get_rows};
+use crate::{args::TransInfo, db::load_db, utils::get_rows};
 
 pub struct TableTab {
     colors: TableTheme,
@@ -16,7 +16,8 @@ pub struct TableTab {
 
 impl Default for TableTab {
     fn default() -> Self {
-        let items = get_rows();
+        let db = load_db().unwrap();
+        let items = get_rows(db);
 
         Self {
             colors: TableTheme::default(),

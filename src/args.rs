@@ -1,12 +1,40 @@
 use std::fmt;
 
-// External
+use anyhow::Result;
 use clap::{Args, Parser, Subcommand};
 
+use crate::cmds::{add_trans, balance, coins, export_file, import_file, remove_trans, show};
+use crate::db::load_db;
+use crate::tui::app::App;
+
 #[derive(Debug, Parser)]
-pub struct RbalArgs {
+pub struct RbalCli {
     #[clap(subcommand)]
     pub command: Rbal,
+}
+
+impl RbalCli {
+    pub fn run() -> Result<()> {
+        let db = load_db()?;
+        let args = Self::parse();
+
+        match args.command {
+            Rbal::Add(cmds) => add_trans(cmds, db),
+            Rbal::Remove(cmds) => remove_trans(cmds, db),
+            Rbal::Export(cmds) => export_file(cmds, db),
+            Rbal::Import(cmds) => import_file(cmds, db)?,
+            Rbal::Balance => balance(db),
+            Rbal::Coins => coins(db),
+            Rbal::Show(cmds) => show(cmds, db),
+            Rbal::Tui => {
+                let terminal = ratatui::init();
+                let _ = App::default().run(terminal);
+                ratatui::restore();
+            }
+        };
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Subcommand)]

@@ -9,7 +9,7 @@ use ratatui::{
 };
 use std::cell::RefCell;
 
-use crate::{args::TransInfo, utils::get_rows};
+use crate::{args::TransInfo, db::load_db, utils::get_rows};
 
 use super::tabs::RbalTabs;
 
@@ -107,10 +107,11 @@ pub struct AppState {
 
 impl Default for AppState {
     fn default() -> Self {
+        let db = load_db().unwrap();
         Self {
             running: true,
             table_state: RefCell::new(TableState::default().with_selected(0)),
-            table_items: get_rows(),
+            table_items: get_rows(db),
         }
     }
 }

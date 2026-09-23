@@ -5,11 +5,8 @@ use colored::Colorize;
 use rusqlite::Connection;
 
 use crate::args::TransInfo;
-use crate::db::load_db;
 
-pub fn get_rows() -> Vec<TransInfo> {
-    let db: Connection = load_db();
-
+pub fn get_rows(db: Connection) -> Vec<TransInfo> {
     let mut stmt = db.prepare("SELECT * FROM rbal").unwrap();
 
     let tmp = stmt
@@ -37,7 +34,7 @@ pub fn get_rows() -> Vec<TransInfo> {
     trans.expect("fail")
 }
 
-pub fn show_all() {
+pub fn show_all(db: Connection) {
     println!(
         "{: <5} {: <15} {: <15} {: <10} {: <5}",
         "ID", "Vendor", "Date", "Coin", "Amount"
@@ -45,7 +42,7 @@ pub fn show_all() {
 
     println!("{:-<60}", "");
 
-    let rows: Vec<TransInfo> = get_rows();
+    let rows: Vec<TransInfo> = get_rows(db);
 
     for row in rows {
         let amt = if row.amount < 0.0 {
@@ -61,9 +58,7 @@ pub fn show_all() {
     }
 }
 
-pub fn show_id(id: u32) {
-    let db: Connection = load_db();
-
+pub fn show_id(id: u32, db: Connection) {
     let query = format!("SELECT * FROM rbal WHERE id = {}", id,);
 
     let row: TransInfo = db
@@ -89,9 +84,7 @@ pub fn show_id(id: u32) {
     println!("{}", row);
 }
 
-pub fn get_coins_data() -> Result<BTreeMap<String, (f64, i32)>> {
-    let db: Connection = load_db();
-
+pub fn get_coins_data(db: Connection) -> Result<BTreeMap<String, (f64, i32)>> {
     let mut coins_map = BTreeMap::new();
 
     let mut stmt = db.prepare("SELECT coin, amount FROM rbal").unwrap();

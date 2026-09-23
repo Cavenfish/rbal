@@ -101,7 +101,7 @@ impl Widget for HistoryTab {
 }
 
 fn get_chart_data() -> Result<(f64, Vec<(f64, f64)>)> {
-    let db = load_db();
+    let db = load_db()?;
     let mut stmt = db.prepare("SELECT amount FROM rbal")?;
     let mut rows = stmt.query([])?;
 

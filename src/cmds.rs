@@ -1,16 +1,16 @@
-use crate::args::{ExportArgs, ImportArgs, RemoveArgs, ShowArgs, TransInfo};
-use crate::db::load_db;
-use crate::utils::{get_coins_data, get_rows, show_all, show_id};
-
 use std::fs::File;
 use std::io::Write;
 
+use anyhow::{Context, Result};
 use chrono::Local;
 use rusqlite::Connection;
 use rusqlite::vtab::csvtab::load_module;
 
-pub fn export_file(cmd: ExportArgs) {
-    let rows: Vec<TransInfo> = get_rows();
+use crate::args::{ExportArgs, ImportArgs, RemoveArgs, ShowArgs, TransInfo};
+use crate::utils::{get_coins_data, get_rows, show_all, show_id};
+
+pub fn export_file(cmd: ExportArgs, db: Connection) {
+    let rows: Vec<TransInfo> = get_rows(db);
 
     let mut file = File::create(&cmd.filename).expect("Unable to create file");
 
@@ -26,9 +26,7 @@ pub fn export_file(cmd: ExportArgs) {
     }
 }
 
-pub fn import_file(cmd: ImportArgs) {
-    let db: Connection = load_db();
-
+pub fn import_file(cmd: ImportArgs, db: Connection) -> Result<()> {
     load_module(&db).expect("unable to load");
 
     let schema = "CREATE TABLE x (
@@ -48,7 +46,8 @@ pub fn import_file(cmd: ImportArgs) {
         &cmd.filename, &schema,
     );
 
-    db.execute_batch(&vtab).expect("fail");
+    db.execute_batch(&vtab)
+        .context("Failed to create virtual table")?;
 
     db.execute(
         "INSERT INTO rbal SELECT 
@@ -59,14 +58,15 @@ pub fn import_file(cmd: ImportArgs) {
     FROM csv_data",
         (),
     )
-    .expect("fail");
+    .context("Failed to insert data into rbal table")?;
 
-    db.execute("DROP TABLE csv_data", ()).expect("fail");
+    db.execute("DROP TABLE csv_data", ())
+        .context("Failed to drop virtual table")?;
+
+    Ok(())
 }
 
-pub fn add_trans(cmd: TransInfo) {
-    let db: Connection = load_db();
-
+pub fn add_trans(cmd: TransInfo, db: Connection) {
     let date = match cmd.date.as_str() {
         // Handle default value
         "today" => {
@@ -95,16 +95,12 @@ pub fn add_trans(cmd: TransInfo) {
     .expect("Failed to add transaction");
 }
 
-pub fn remove_trans(cmd: RemoveArgs) {
-    let db: Connection = load_db();
-
+pub fn remove_trans(cmd: RemoveArgs, db: Connection) {
     db.execute("DELETE FROM rbal WHERE id = ?1", (cmd.id,))
         .expect("Failed to remove transaction");
 }
 
-pub fn balance() {
-    let db: Connection = load_db();
-
+pub fn balance(db: Connection) {
     let mut u_tot: f64 = 0.0;
     let mut c_tot: f64 = 0.0;
     let mut total: f64 = 0.0;
@@ -133,8 +129,8 @@ pub fn balance() {
     println!("{: <12}: {:0>8.2} USD", "Net Spent", &total);
 }
 
-pub fn coins() {
-    let coins_map = get_coins_data().unwrap();
+pub fn coins(db: Connection) {
+    let coins_map = get_coins_data(db).unwrap();
 
     println!("{: <8} {: <8} {: <5}", "Coin", "Total", "Tx Count");
 
@@ -145,12 +141,12 @@ pub fn coins() {
     }
 }
 
-pub fn show(cmd: ShowArgs) {
+pub fn show(cmd: ShowArgs, db: Connection) {
     match cmd.id {
         // Handle default value
-        0 => show_all(),
+        0 => show_all(db),
 
         // Handle user input
-        _ => show_id(cmd.id),
+        _ => show_id(cmd.id, db),
     };
 }
