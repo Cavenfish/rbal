@@ -1,10 +1,27 @@
 use std::collections::BTreeMap;
 
 use anyhow::Result;
+use chrono::Local;
 use colored::Colorize;
 use rusqlite::Connection;
 
 use crate::args::TransInfo;
+
+pub fn handle_date(date: &str) -> Result<String> {
+    let new_date = match date {
+        // Handle default value
+        "today" => {
+            let tmp = Local::now();
+
+            tmp.format("%Y-%m-%d").to_string()
+        }
+
+        // Handle user input
+        _ => date.to_string(),
+    };
+
+    Ok(new_date)
+}
 
 pub fn get_rows(db: Connection) -> Vec<TransInfo> {
     let mut stmt = db.prepare("SELECT * FROM rbal").unwrap();
