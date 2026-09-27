@@ -3,7 +3,9 @@ use std::fmt;
 use anyhow::Result;
 use clap::{Args, Parser, Subcommand};
 
-use crate::cmds::{add_trans, balance, coins, export_file, import_file, remove_trans, show};
+use crate::cmds::{
+    add_trans, balance, coins, edit_trans, export_file, import_file, remove_trans, show,
+};
 use crate::db::load_db;
 use crate::tui::app::App;
 
@@ -21,6 +23,7 @@ impl RbalCli {
         match args.command {
             Rbal::Add(cmds) => add_trans(cmds, db),
             Rbal::Remove(cmds) => remove_trans(cmds, db),
+            Rbal::Edit(cmds) => edit_trans(cmds, db),
             Rbal::Export(cmds) => export_file(cmds, db),
             Rbal::Import(cmds) => import_file(cmds, db)?,
             Rbal::Balance => balance(db),
@@ -45,8 +48,9 @@ pub enum Rbal {
     /// Remove transaction
     Remove(RemoveArgs),
 
-    // Edit Transaction
-    // Edit(EditArgs),
+    /// Edit Transaction
+    Edit(EditArgs),
+
     /// Import transactions list
     Import(ImportArgs),
 
@@ -94,10 +98,35 @@ pub struct RemoveArgs {
     pub id: u32,
 }
 
-// #[derive(Debug, Args)]
-// pub struct EditArgs {
+#[derive(Debug, Args)]
+pub struct EditArgs {
+    /// ID of row to modify
+    pub id: u32,
 
-// }
+    /// Vendor
+    #[arg(short)]
+    pub vendor: Option<String>,
+
+    /// Give a description
+    #[arg(short)]
+    pub message: Option<String>,
+
+    /// Coin used
+    #[arg(short, long)]
+    pub coin: Option<String>,
+
+    /// Network used
+    #[arg(short, long)]
+    pub network: Option<String>,
+
+    /// Amount in dollars
+    #[arg(short, long)]
+    pub amount: Option<f64>,
+
+    /// Date of transaction (Defaults to today)
+    #[arg(long, default_value = "today")]
+    pub date: Option<String>,
+}
 
 #[derive(Debug, Args)]
 pub struct TransInfo {

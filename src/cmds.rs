@@ -1,13 +1,13 @@
+use std::fmt::Write as _;
 use std::fs::File;
-use std::io::Write;
+use std::io::Write as _;
 
 use anyhow::{Context, Result};
-use chrono::Local;
-use rusqlite::Connection;
 use rusqlite::vtab::csvtab::load_module;
+use rusqlite::{Connection, ToSql};
 
-use crate::args::{ExportArgs, ImportArgs, RemoveArgs, ShowArgs, TransInfo};
-use crate::utils::{get_coins_data, get_rows, show_all, show_id};
+use crate::args::{EditArgs, ExportArgs, ImportArgs, RemoveArgs, ShowArgs, TransInfo};
+use crate::utils::{get_coins_data, get_rows, handle_date, show_all, show_id};
 
 pub fn export_file(cmd: ExportArgs, db: Connection) {
     let rows: Vec<TransInfo> = get_rows(db);
@@ -67,17 +67,7 @@ pub fn import_file(cmd: ImportArgs, db: Connection) -> Result<()> {
 }
 
 pub fn add_trans(cmd: TransInfo, db: Connection) {
-    let date = match cmd.date.as_str() {
-        // Handle default value
-        "today" => {
-            let tmp = Local::now();
-
-            &tmp.format("%Y-%m-%d").to_string()
-        }
-
-        // Handle user input
-        _ => &cmd.date,
-    };
+    let date = handle_date(&cmd.date).expect("Failed to interpret date");
 
     db.execute(
         "INSERT INTO rbal (
@@ -93,6 +83,65 @@ pub fn add_trans(cmd: TransInfo, db: Connection) {
         ),
     )
     .expect("Failed to add transaction");
+}
+
+pub fn edit_trans(cmd: EditArgs, db: Connection) {
+    let mut i = 1;
+    let mut params: Vec<&dyn ToSql> = Vec::new();
+    let mut sql = String::with_capacity(1024);
+
+    sql.push_str("UPDATE rbal SET ");
+
+    if let Some(ref vendor) = cmd.vendor {
+        write!(&mut sql, "vendor = ?{}, ", i).unwrap();
+        params.push(vendor);
+        i += 1;
+    }
+
+    if let Some(ref message) = cmd.message {
+        write!(&mut sql, "message = ?{}, ", i).unwrap();
+        params.push(message);
+        i += 1;
+    }
+
+    if let Some(ref coin) = cmd.coin {
+        write!(&mut sql, "coin = ?{}, ", i).unwrap();
+        params.push(coin);
+        i += 1;
+    }
+
+    if let Some(ref network) = cmd.network {
+        write!(&mut sql, "network = ?{}, ", i).unwrap();
+        params.push(network);
+        i += 1;
+    }
+
+    if let Some(ref amount) = cmd.amount {
+        write!(&mut sql, "amount = ?{}, ", i).unwrap();
+        params.push(amount);
+        i += 1;
+    }
+
+    let new_date: String;
+    if let Some(ref date) = cmd.date {
+        new_date = handle_date(date).expect("Failed to interpret date");
+
+        write!(&mut sql, "date = ?{}, ", i).unwrap();
+        params.push(&new_date);
+        i += 1;
+    }
+
+    if params.is_empty() {
+        return;
+    }
+
+    sql.truncate(sql.len() - 2);
+
+    write!(&mut sql, " WHERE id = ?{}", i).unwrap();
+    params.push(&cmd.id);
+
+    db.execute(&sql, &params[..])
+        .expect("Failed to edit transaction");
 }
 
 pub fn remove_trans(cmd: RemoveArgs, db: Connection) {
