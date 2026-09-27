@@ -73,28 +73,25 @@ pub enum Rbal {
 #[derive(Debug, Args)]
 pub struct ExportArgs {
     /// Filename
-    #[arg(short)]
     pub filename: String,
 }
 
 #[derive(Debug, Args)]
 pub struct ImportArgs {
     /// Filename
-    #[arg(short)]
     pub filename: String,
 }
 
 #[derive(Debug, Args)]
 pub struct ShowArgs {
     /// Transaction ID (Defaults to show all)
-    #[arg(long, default_value_t = 0)]
+    #[arg(default_value_t = 0)]
     pub id: u32,
 }
 
 #[derive(Debug, Args)]
 pub struct RemoveArgs {
     /// Transaction ID
-    #[arg(short, long)]
     pub id: u32,
 }
 
