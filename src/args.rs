@@ -124,7 +124,7 @@ pub struct EditArgs {
     pub amount: Option<f64>,
 
     /// Date of transaction (Defaults to today)
-    #[arg(long, default_value = "today")]
+    #[arg(long)]
     pub date: Option<String>,
 }
 
